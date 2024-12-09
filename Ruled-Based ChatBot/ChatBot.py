@@ -23,16 +23,26 @@ class BaseBotModule:
 class ReminderBot(BaseBotModule):
     def __init__(self):
         self.reminders = []
-        self.welcome_message = "Hello, Welcome!\nI am your virtual assistant ChatBot. How can I help you."
-        print(self.welcome_message)
 
     def can_handle(self, user_input):
-        """Check if input is related to reminders"""
-        reminder_keywords = [
-            'remind', 'reminder', 'schedule', 
-            'todo', 'task', 'appointment'
-        ]
+        reminder_keywords = ['remind', 'reminder', 'schedule', 'todo', 'task', 'appointment']
         return any(keyword in user_input.lower() for keyword in reminder_keywords)
+
+    def process_input(self, user_input):
+        if "add reminder" in user_input:
+            title = input("Enter reminder title: ")
+            description = input("Enter reminder description: ")
+            date_time = input("Enter reminder date and time (YYYY-MM-DD HH:MM): ")
+            return self.add_reminder(title, description, date_time)
+        elif "list reminders" in user_input:
+            return self.list_reminders()
+        elif "delete reminder" in user_input:
+            title = input("Enter reminder title to delete: ")
+            return self.delete_reminder(title)
+        elif "get due reminder" in user_input:
+            return self.get_due_reminder()
+        else:
+            return "I can help with adding, listing, getting due reminders or deleting reminders."
 
     def add_reminder(self, title, description, date_time):
         try:
@@ -67,32 +77,32 @@ class ReminderBot(BaseBotModule):
             return response
         return "No reminders are due.\n"
     
-    def process_input(self, user_input):
-        while True:
-            user_input = input("You: ").strip().lower()
+    # def process_input(self, user_input):
+    #     while True:
+    #         user_input = input("You: ").strip().lower()
 
-            if user_input == "exit":
-                print("Goodbye!")
-                break
+    #         if user_input == "exit":
+    #             print("Goodbye!")
+    #             break
 
-            elif user_input == "add reminder":
-                title = input("Enter reminder title: ")
-                description = input("Enter reminder description: ")
-                date_time = input("Enter reminder date and time (YYYY-MM-DD HH:MM): ")
-                print(add_reminder(title, description, date_time))
+    #         elif user_input == "add reminder":
+    #             title = input("Enter reminder title: ")
+    #             description = input("Enter reminder description: ")
+    #             date_time = input("Enter reminder date and time (YYYY-MM-DD HH:MM): ")
+    #             print(add_reminder(title, description, date_time))
 
-            elif user_input == "delete reminder":
-                title = input("Enter reminder title to delete: ")
-                print(delete_reminder(title))
+    #         elif user_input == "delete reminder":
+    #             title = input("Enter reminder title to delete: ")
+    #             print(delete_reminder(title))
 
-            elif user_input == "list reminders":
-                print(list_reminders())
+    #         elif user_input == "list reminders":
+    #             print(list_reminders())
 
-            elif user_input == "due reminders":
-                print(get_due_reminders())
+    #         elif user_input == "due reminders":
+    #             print(get_due_reminders())
 
-            else:
-                print("I didn't understand that. Try 'add reminder', 'delete reminder', 'list reminders', or 'due reminders'.")
+    #         else:
+    #             print("I didn't understand that. Try 'add reminder', 'delete reminder', 'list reminders', or 'due reminders'.")
 
 
 import os
@@ -111,18 +121,22 @@ class weatherBot(BaseBotModule):
         ]
         return any(keyword in user_input.lower() for keyword in weather_keywords)
 
-    def process_input(self):
-        self.api = self.open_weather_api
-        self.base_url = self.base_url+self.api    
-        response = requests.get(self.base_url)
-        print(response.json())
+    def process_input(self, user_input):
+        city_name = input("Enter the city name: ")
+        url = f"{self.base_url}?q={city_name}&appid={self.open_weather_api}"
+        # print(url)
+        response = requests.get(url)
+        # print(response.json())
 
         if response.status_code == 200:
             data = response.json()
             weather_data = data['weather'][0]['main']
             temp_data = data['main']['temp']
-            print(f'The current weather is {weather_data}.')
-            print(f'The current temperature is {temp_data}°C (degrees).')
+            # print(f'The current weather is {weather_data}.')
+            # print(f'The current temperature is {temp_data}°C (degrees).')
+            return f"The current weather in {city_name} is {weather_data} with a temperature of {temp_data}°C."
+        else:
+            return "Sorry, I couldn't retrieve the weather information."
             
 
 class ChatBot:
@@ -135,15 +149,6 @@ class ChatBot:
         
         # Default fallback module
         self.default_module = DefaultModule()
-    
-    def add_module(self, module):
-        """
-        Dynamically add new functionality modules
-        """
-        if isinstance(module, BaseBotModule):
-            self.modules.append(module)
-        else:
-            raise ValueError("Module must inherit from BaseBotModule")
     
     def process_input(self, user_input):
         """
@@ -158,24 +163,27 @@ class ChatBot:
         return self.default_module.process_input(user_input)
     
     def start_chat(self):
-        """
-        Main chat loop
-        """
-        print("Welcome to the Modular ChatBot!")
-        print("Type 'exit' to end the conversation")
+        print("Hello there! 👋 I'm your virtual assistant ChatBot.")
+        print("I can help you with reminders or provide weather updates.")
+        print("Just ask me something like 'What's the weather like?' or 'Set a reminder for me.'")
+        print("Type 'exit' to end our chat. 😊")
         
         while True:
             user_input = input("You: ").strip()
-            
-            # Exit condition
             if user_input.lower() in ['exit', 'quit', 'bye']:
-                print("ChatBot: Goodbye!")
+                print("ChatBot: It's been great talking with you. Have a wonderful day! 🌟")
                 break
             
-            # Process input and get response
+            # Process the user input
             response = self.process_input(user_input)
+            
+            # Add conversational flair
+            if "weather" in user_input.lower():
+                print("ChatBot: Here's the weather update you asked for.")
+            elif "reminder" in user_input.lower():
+                print("ChatBot: Sure! Let me assist you with reminders.")
+            
             print("ChatBot:", response)
-
 class DefaultModule(BaseBotModule):
     """
     Fallback module for unhandled inputs
@@ -197,11 +205,7 @@ class DefaultModule(BaseBotModule):
 # Demonstration of usage
 def main():
     # Create chatbot instance
-    chatbot = ChatBot()
-    
-    # Optional: Add a new module dynamically
-    # chatbot.add_module(NewModule())
-    
+    chatbot = ChatBot()   
     # Start the chat
     chatbot.start_chat()
 
