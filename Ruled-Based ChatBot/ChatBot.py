@@ -6,17 +6,12 @@ import re
 class BaseBotModule:
     """Base class for all bot functionality modules"""
     def can_handle(self, user_input):
-        """
-        Determine if this module can handle the user input
-        To be implemented by child classes
-        """
+        # Determine if this module can handle the user input To be implemented by child classes
         return False
     
     def process_input(self, user_input):
-        """
-        Process the user input
-        To be implemented by child classes
-        """
+        # Process the user input To be implemented by child classes
+        
         raise NotImplementedError("Each module must implement process_input method")
 
 
@@ -30,19 +25,19 @@ class ReminderBot(BaseBotModule):
 
     def process_input(self, user_input):
         if "add reminder" in user_input:
-            title = input("Enter reminder title: ")
-            description = input("Enter reminder description: ")
-            date_time = input("Enter reminder date and time (YYYY-MM-DD HH:MM): ")
+            print("Alright! Let's set up a reminder.")
+            title = input("What should I call the reminder? ")
+            description = input("Can you give me a little detail about it? ")
+            date_time = input("When should I remind you? (Please use YYYY-MM-DD HH:MM format): ")
             return self.add_reminder(title, description, date_time)
         elif "list reminders" in user_input:
-            return self.list_reminders()
+            return "Here’s a list of your reminders:\n" + self.list_reminders()
         elif "delete reminder" in user_input:
-            title = input("Enter reminder title to delete: ")
+            print("Sure, I can delete a reminder for you.")
+            title = input("Which reminder should I delete? ")
             return self.delete_reminder(title)
-        elif "get due reminder" in user_input:
-            return self.get_due_reminder()
         else:
-            return "I can help with adding, listing, getting due reminders or deleting reminders."
+            return "I'm here to help with your reminders. Try saying 'add reminder', 'list reminders', or 'delete reminder'."
 
     def add_reminder(self, title, description, date_time):
         try:
@@ -77,34 +72,6 @@ class ReminderBot(BaseBotModule):
             return response
         return "No reminders are due.\n"
     
-    # def process_input(self, user_input):
-    #     while True:
-    #         user_input = input("You: ").strip().lower()
-
-    #         if user_input == "exit":
-    #             print("Goodbye!")
-    #             break
-
-    #         elif user_input == "add reminder":
-    #             title = input("Enter reminder title: ")
-    #             description = input("Enter reminder description: ")
-    #             date_time = input("Enter reminder date and time (YYYY-MM-DD HH:MM): ")
-    #             print(add_reminder(title, description, date_time))
-
-    #         elif user_input == "delete reminder":
-    #             title = input("Enter reminder title to delete: ")
-    #             print(delete_reminder(title))
-
-    #         elif user_input == "list reminders":
-    #             print(list_reminders())
-
-    #         elif user_input == "due reminders":
-    #             print(get_due_reminders())
-
-    #         else:
-    #             print("I didn't understand that. Try 'add reminder', 'delete reminder', 'list reminders', or 'due reminders'.")
-
-
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -163,10 +130,11 @@ class ChatBot:
         return self.default_module.process_input(user_input)
     
     def start_chat(self):
-        print("Hello there! 👋 I'm your virtual assistant ChatBot.")
-        print("I can help you with reminders or provide weather updates.")
-        print("Just ask me something like 'What's the weather like?' or 'Set a reminder for me.'")
-        print("Type 'exit' to end our chat. 😊")
+        print("Hello there! 👋 I'm your friendly virtual assistant, ChatBot.")
+        print("Need a reminder or want to know the weather? I’ve got you covered!")
+        print("You can ask me things like 'What's the weather like?' or 'Set a reminder for me.'")
+        print("And when you're done, just type 'exit' to end our chat. Let's get started! 😊")
+
         
         while True:
             user_input = input("You: ").strip()
@@ -174,14 +142,34 @@ class ChatBot:
                 print("ChatBot: It's been great talking with you. Have a wonderful day! 🌟")
                 break
             
-            # Process the user input
-            response = self.process_input(user_input)
             
             # Add conversational flair
             if "weather" in user_input.lower():
-                print("ChatBot: Here's the weather update you asked for.")
+                print("ChatBot: Let me grab the latest weather update for you. Hang tight! 🌤️.")
+                
             elif "reminder" in user_input.lower():
                 print("ChatBot: Sure! Let me assist you with reminders.")
+                
+            elif any(greeting in user_input.lower() for greeting in ["hi", "hello", "hey"]):
+                print("ChatBot: Hi there! 😊 How can I assist you today?")
+                continue
+            elif any(farewell in user_input.lower() for farewell in ["bye", "goodbye", "see you"]):
+                print("ChatBot: Goodbye! Take care and have a great day ahead! 🌟")
+                continue
+            elif "how are you" in user_input.lower():
+                print("ChatBot: I'm just a bot, but I'm here to help! How can I assist you?")
+            elif "thank you" in user_input.lower() or "thanks" in user_input.lower():
+                print("ChatBot: You're welcome! 😊 I'm always here to help.")
+                continue
+            elif "help" in user_input.lower():
+                print("ChatBot: Of course! I can assist with weather updates and reminders. What would you like to do?")
+                continue
+            else:
+                print("ChatBot: Hmm, I didn't quite catch that. Could you rephrase? Maybe I can help with reminders or weather updates.")
+                continue
+
+             # Process the user input
+            response = self.process_input(user_input)
             
             print("ChatBot:", response)
 class DefaultModule(BaseBotModule):
