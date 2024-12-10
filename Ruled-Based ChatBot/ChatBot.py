@@ -105,13 +105,43 @@ class weatherBot(BaseBotModule):
         else:
             return "Sorry, I couldn't retrieve the weather information."
             
-
+class newsletterBot(BaseBotModule):
+    def __init__(self):
+        self.news_api = os.getenv('news_api')
+        self.news_url = os.getenv('news_url')
+    
+    def can_handle(self, user_input):
+        """Check if input is related to newsletters"""
+        newsletter_keywords = ['newsletter', 'news','current news', 'headlines', 'current articles', 'article']
+        return any(keyword in user_input.lower() for keyword in newsletter_keywords)
+    
+    def process_input(self, user_input):
+        headlines = input('Enter your headline: ')
+        url = f"{self.news_url}?q={headlines}&apiKey={self.news_api}"
+        
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                news_data = response.json()
+                if news_data.get("articles"):
+                    news_summary = "\n".join([
+                        f"{article['title']} - {article['source']['name']}"
+                        for article in news_data["articles"][:5]  # Return only the latest 5 headlines
+                    ])
+                    return f"📰 Latest Headlines:\n{news_summary}"
+                else:
+                    return "No news articles found at the moment. Please try again later."
+            else:
+                return "Error: Unable to fetch news. Please try again later."
+        except Exception as e:
+            return f"Error fetching news: {str(e)}"
 class ChatBot:
     def __init__(self):
         # List of bot modules
         self.modules = [
             weatherBot(),
-            ReminderBot()
+            ReminderBot(),
+            newsletterBot(),
         ]
         
         # Default fallback module
@@ -149,7 +179,10 @@ class ChatBot:
                 
             elif "reminder" in user_input.lower():
                 print("ChatBot: Sure! Let me assist you with reminders.")
-                
+
+            elif "news" in user_input.lower():
+                print("ChatBot: I'm here to help you with your news headlines! Let me find some for you.")
+                    
             elif any(greeting in user_input.lower() for greeting in ["hi", "hello", "hey"]):
                 print("ChatBot: Hi there! 😊 How can I assist you today?")
                 continue
