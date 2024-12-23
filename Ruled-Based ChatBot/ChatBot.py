@@ -219,7 +219,7 @@ class DefaultModule(BaseBotModule):
         """
         return (
             "I'm not sure how to help with that. "
-            "I can assist with weather and reminders. "
+            "I can assist with weather and reminders and newsletters. "
             "Try asking about the weather or managing reminders."
         )
 

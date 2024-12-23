@@ -1,0 +1,8 @@
+yolo
+data
+yolov7.onnx
+Lib
+Include
+Scripts
+share
+pyvenv.cfg
