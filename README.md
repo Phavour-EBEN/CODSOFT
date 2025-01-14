@@ -80,7 +80,7 @@ This project focuses on object detection using the YOLOv7-tiny model. It is capa
 
 2. Navigate to the project directory:
    ```bash
-   cd codsoft-projects
+   cd CODSOFT
    ```
 
 3. Install dependencies:
@@ -97,6 +97,12 @@ This project focuses on object detection using the YOLOv7-tiny model. It is capa
      ```bash
      python detection.py --source your_video.mp4
      ```
+   - **Rule-Based ChatBot:**
+     ```bash
+     streamlit run streamlit_chatbot.py
+     For terminal interaction `run ChatBot.py`
+     ```
+    
 
 ---
 
