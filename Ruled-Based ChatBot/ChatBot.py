@@ -1,6 +1,5 @@
 import datetime
 import requests
-
 import re
 
 class BaseBotModule:
